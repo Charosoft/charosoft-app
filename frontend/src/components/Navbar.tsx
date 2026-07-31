@@ -17,9 +17,7 @@ export const Navbar: React.FC = () => {
             Accueil
           </Link>
 
-          <Link to="/about" className="hover:text-blue-400 transition">
-            À propos
-          </Link>
+          
 
           {/* Pour cibler l'ancre #projects ou #contact sur la page d'accueil */}
           <a href="/#projects" className="hover:text-blue-400 transition">
@@ -29,6 +27,10 @@ export const Navbar: React.FC = () => {
           <a href="/#contact" className="hover:text-blue-400 transition">
             Contact
           </a>
+
+          <Link to="/about" className="hover:text-blue-400 transition">
+            À propos
+          </Link>
         </div>
 
       </div>
