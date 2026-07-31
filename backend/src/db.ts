@@ -1,24 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
-// Charge le .env local uniquement s'il existe
 dotenv.config();
 
-// Récupération des variables en nettoyant les espaces inutiles
-const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
-const supabaseKey = (process.env.SUPABASE_KEY || '').trim();
-
-// Vérification avec affichage clair dans les logs Render si une variable manque
-if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-  console.error('❌ ERREUR CRITIQUE : SUPABASE_URL est absente ou invalide ! Valeur reçue :', `"${supabaseUrl}"`);
+// Fonction pour extraire une URL pure (supprime le format Markdown s'il existe)
+function cleanUrl(rawUrl: string | undefined): string {
+  if (!rawUrl) return '';
+  let url = rawUrl.trim();
+  // Extrait l'URL située à l'intérieur des parenthèses ou crochets si présent
+  const match = url.match(/https:\/\/[^\s\)\"]+/);
+  return match ? match[0] : url;
 }
 
-if (!supabaseKey) {
-  console.error('❌ ERREUR CRITIQUE : SUPABASE_KEY est absente !');
+const supabaseUrl = cleanUrl(process.env.SUPABASE_URL);
+const supabaseKey = (process.env.SUPABASE_KEY || '').trim();
+
+if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
+  console.error('❌ ERREUR CRITIQUE : SUPABASE_URL est invalide ! Valeur extraite :', `"${supabaseUrl}"`);
 }
 
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseUrl || 'https://placeholder.supabase.co',
   supabaseKey || 'placeholder'
 );
 
