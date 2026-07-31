@@ -19,31 +19,35 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// 2. Configuration CORS sécurisée pour Dev & Production
+// 2. Configuration CORS universelle / tolérante pour Dev & Production
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://charosoft.vercel.app',
-  'https://charosoft-app.vercel.app'
+  'https://charosoft-app.vercel.app',
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Autorise les requêtes sans origine (comme Postman, mobile ou cURL)
-      // et les domaines spécifiés dans la liste
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // En prod, si l'origine n'est pas explicite, on laisse passer ou on log
-        callback(null, true); 
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Si pas d'origine (Postman, mobile, server-to-server) ou origine dans la whitelist
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Pour éviter les blocages en prod, on autorise l'origine entrante dynamiquement
+      callback(null, origin);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200, // Important pour la compatibilité des requêtes preflight OPTIONS
+};
+
+// Application du middleware CORS sur toutes les routes
+app.use(cors(corsOptions));
+
+// Gestion explicite des requêtes Preflight OPTIONS
+app.options('*', cors(corsOptions));
 
 // 3. Middlewares pour lire le JSON et les données de formulaires
 app.use(express.json({ limit: '100mb' }));
@@ -61,7 +65,7 @@ app.get('/', (_req: Request, res: Response) => {
   res.send('🚀 Backend Charosoft opérationnel !');
 });
 
-// 5. Middleware global de gestion des erreurs (pour loguer dans Render)
+// 5. Middleware global de gestion des erreurs
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('❌ Erreur serveur :', err.stack || err.message);
   res.status(500).json({
