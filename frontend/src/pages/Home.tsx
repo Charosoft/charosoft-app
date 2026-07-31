@@ -7,6 +7,11 @@ import ProjectModal from '../components/ProjectModal';
 import Footer from '../components/Footer';
 import type { Project } from '../types';
 
+// URL centralisée de l'API (bascule automatique sur Render si la variable n'est pas définie)
+const API_BASE_URL =
+  import.meta.env?.VITE_API_BASE_URL ||
+  'https://charosoft-api.onrender.com';
+
 export const Home: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -29,7 +34,7 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get<Project[]>('http://localhost:5000/api/projects');
+        const response = await axios.get<Project[]>(`${API_BASE_URL}/api/projects`);
         setProjects(response.data);
       } catch (error) {
         console.error('Erreur lors du chargement des projets :', error);
@@ -48,7 +53,7 @@ export const Home: React.FC = () => {
     setStatusMessage(null);
 
     try {
-      await axios.post('http://localhost:5000/api/messages', formData);
+      await axios.post(`${API_BASE_URL}/api/messages`, formData);
       setStatusMessage({
         type: 'success',
         text: 'Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.',

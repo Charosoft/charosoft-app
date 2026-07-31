@@ -4,6 +4,11 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
 
+// URL centralisée de l'API (bascule automatique sur Render si la variable n'est pas définie)
+const API_BASE_URL =
+  import.meta.env?.VITE_API_BASE_URL ||
+  'https://charosoft-api.onrender.com';
+
 export const Dashboard: React.FC = () => {
   // Authentification Admin simple
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -30,7 +35,6 @@ export const Dashboard: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Tu peux changer le mot de passe secret ici :
     if (passwordInput === 'charosoft2026') {
       setIsAuthenticated(true);
       setAuthError(null);
@@ -43,8 +47,8 @@ export const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       const [projectsRes, messagesRes] = await Promise.all([
-        axios.get<Project[]>('http://localhost:5000/api/projects'),
-        axios.get<ClientMessage[]>('http://localhost:5000/api/messages'),
+        axios.get<Project[]>(`${API_BASE_URL}/api/projects`),
+        axios.get<ClientMessage[]>(`${API_BASE_URL}/api/messages`),
       ]);
       setProjects(projectsRes.data);
       setMessages(messagesRes.data);
@@ -94,7 +98,7 @@ export const Dashboard: React.FC = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/projects', formData, {
+      await axios.post(`${API_BASE_URL}/api/projects`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setFormStatus('Projet et fichiers publiés avec succès !');
@@ -118,7 +122,7 @@ export const Dashboard: React.FC = () => {
   const handleDeleteProject = async (id?: string) => {
     if (!id || !window.confirm('Voulez-vous vraiment supprimer ce projet ?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/projects/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/projects/${id}`);
       fetchData();
     } catch (error) {
       console.error('Erreur suppression :', error);
