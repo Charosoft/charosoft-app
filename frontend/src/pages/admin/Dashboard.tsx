@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import BackButton from '../components/BackButton';
+import BackButton from '../../components/BackButton';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
