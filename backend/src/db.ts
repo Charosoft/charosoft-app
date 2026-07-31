@@ -3,12 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Fonction pour extraire une URL pure (supprime le format Markdown s'il existe)
+// Extraction propre de l'URL brute (pour virer les [ ] ou ( ) du markdown)
 function cleanUrl(rawUrl: string | undefined): string {
   if (!rawUrl) return '';
   let url = rawUrl.trim();
-  // Extrait l'URL située à l'intérieur des parenthèses ou crochets si présent
-  const match = url.match(/https:\/\/[^\s\)\"]+/);
+  const match = url.match(/https:\/\/[^\s\)\"\]]+/);
   return match ? match[0] : url;
 }
 
@@ -16,7 +15,7 @@ const supabaseUrl = cleanUrl(process.env.SUPABASE_URL);
 const supabaseKey = (process.env.SUPABASE_KEY || '').trim();
 
 if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-  console.error('❌ ERREUR CRITIQUE : SUPABASE_URL est invalide ! Valeur extraite :', `"${supabaseUrl}"`);
+  console.error('❌ ERREUR CRITIQUE : SUPABASE_URL invalide ! Valeur :', `"${supabaseUrl}"`);
 }
 
 export const supabase = createClient(
