@@ -5,7 +5,7 @@ import { supabase } from '../db';
 
 const router = Router();
 
-// Configuration du stockage Multer pour les images & vidéos
+// Configuration du stockage Multer pour les images & vidéos (Limite 100 Mo)
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, path.join(__dirname, '../../uploads'));
@@ -17,7 +17,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 100 * 1024 * 1024 }, // Limite de 100 Mo par fichier
+});
 
 // 1. GET /api/projects : Récupérer les projets depuis Supabase
 router.get('/', async (_req: Request, res: Response) => {
@@ -38,8 +41,7 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// Remplace le bloc de la route POST dans projectRoutes.ts par ceci :
-
+// 2. POST /api/projects : Créer un projet
 router.post(
   '/',
   upload.fields([
@@ -51,16 +53,22 @@ router.post(
       const { title, slug, description, full_content, live_url, technologies } = req.body;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-      // Génération automatique d'un slug si non renseigné
-      const generatedSlug = slug || title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || `project-${Date.now()}`;
+      // Détection dynamique de l'URL de domaine (Ex: https://charosoft-api.onrender.com ou http://localhost:5000)
+      const hostUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
 
-      // URLs publiques des fichiers uploadés
+      // Génération automatique d'un slug si non renseigné
+      const generatedSlug =
+        slug ||
+        title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') ||
+        `project-${Date.now()}`;
+
+      // URLs publiques dynamiques des fichiers uploadés
       const thumbnailUrl = files?.thumbnail?.[0]
-        ? `http://localhost:5000/uploads/${files.thumbnail[0].filename}`
+        ? `${hostUrl}/uploads/${files.thumbnail[0].filename}`
         : '';
 
       const videoUrl = files?.video?.[0]
-        ? `http://localhost:5000/uploads/${files.video[0].filename}`
+        ? `${hostUrl}/uploads/${files.video[0].filename}`
         : null;
 
       // Formatage des technologies
@@ -70,17 +78,13 @@ router.post(
       } else if (Array.isArray(technologies)) {
         parsedTech = technologies;
       }
-      const upload = multer({
-        storage,
-        limits: { fileSize: 100 * 1024 * 1024 } // 👈 Permet les fichiers jusqu'à 100Mo
-      });
 
       const { data, error } = await supabase
         .from('projects')
         .insert([
           {
             title,
-            slug: generatedSlug, // 👈 Slug auto-généré
+            slug: generatedSlug,
             description: description || '',
             full_content: full_content || '',
             thumbnail_url: thumbnailUrl,
@@ -106,15 +110,12 @@ router.post(
   }
 );
 
-// 3. DELETE /api/projects/:id : Supprimer un projet de Supabase
+// 3. DELETE /api/projects/:id : Supprimer un projet
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const { error } = await supabase
-      .from('projects')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
 
     if (error) {
       throw error;
