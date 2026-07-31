@@ -202,6 +202,7 @@ export const Home: React.FC = () => {
         project={selectedProject}
         onClose={() => setSelectedProject(null)}
       />
+  
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import BackButton from '../components/BackButton';
+import Footer from '../components/Footer';
 const About: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-300 py-16 px-6 lg:px-8">
@@ -77,7 +78,9 @@ const About: React.FC = () => {
 
         </div>
       </div>
+      <Footer />
     </div>
+    
   );
 };
 
