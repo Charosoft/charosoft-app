@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import BackButton from '../components/BackButton';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
@@ -177,6 +178,7 @@ export const Dashboard: React.FC = () => {
         <main className="max-w-7xl mx-auto px-6 py-10">
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
             <div>
+              <BackButton label="Retour au site" fallbackUrl="/" />
               <h1 className="text-3xl font-bold text-white">Espace d'Administration</h1>
               <p className="text-slate-400 text-sm mt-1">Gérez vos projets et messages reçus.</p>
             </div>

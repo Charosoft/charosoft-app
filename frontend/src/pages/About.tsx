@@ -1,10 +1,10 @@
 import React from 'react';
-
+import BackButton from '../components/BackButton';
 const About: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-300 py-16 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        
+        <BackButton label="Retour à l'accueil" />
         {/* En-tête */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3">
