@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config(); // Doit être TOUT EN HAUT
-
+import contactRoute from './routes/contact';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -64,6 +64,7 @@ app.use('/api/messages', messageRoutes);
 app.get('/', (_req: Request, res: Response) => {
   res.send('🚀 Backend Charosoft opérationnel !');
 });
+app.use('/api', contactRoute); // Rend la route disponible sur /api/contact
 
 // 5. Middleware global de gestion des erreurs
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
