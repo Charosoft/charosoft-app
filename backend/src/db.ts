@@ -12,10 +12,16 @@ function cleanUrl(rawUrl: string | undefined): string {
 }
 
 const supabaseUrl = cleanUrl(process.env.SUPABASE_URL);
-const supabaseKey = (process.env.SUPABASE_KEY || '').trim();
+
+// Utilisation prioritaire de la clé secrète service_role, avec fallback sur SUPABASE_KEY
+const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || '').trim();
 
 if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
   console.error('❌ ERREUR CRITIQUE : SUPABASE_URL invalide ! Valeur :', `"${supabaseUrl}"`);
+}
+
+if (!supabaseKey || supabaseKey === 'placeholder') {
+  console.warn('⚠️ ATTENTION : Aucune clé Supabase valide trouvée dans l\'environnement !');
 }
 
 export const supabase = createClient(
