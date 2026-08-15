@@ -5,7 +5,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
-import '../db'; // Charge le client Supabase
+import './db'; // Charge le client Supabase
 
 import projectRoutes from './routes/projectRoutes';
 import messageRoutes from './routes/messageRoutes';
