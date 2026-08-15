@@ -16,9 +16,10 @@ export const Navbar: React.FC = () => {
         {/* Liens Desktop (Masqués sur écran mobile 'hidden', affichés à partir de 'md:') */}
         <div className="hidden md:flex gap-6 items-center text-sm font-medium">
           <Link to="/" className="hover:text-blue-400 transition">Accueil</Link>
-          <Link to="/about" className="hover:text-blue-400 transition">À propos</Link>
+    
           <a href="/#projects" className="hover:text-blue-400 transition">Projets</a>
           <a href="/#contact" className="hover:text-blue-400 transition">Contact</a>
+          <Link to="/about" className="hover:text-blue-400 transition">À propos</Link>        
         </div>
 
         {/* Bouton Burger Mobile */}
