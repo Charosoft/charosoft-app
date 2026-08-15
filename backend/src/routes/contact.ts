@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Resend } from 'resend';
 import axios from 'axios';
-import { supabase } from './db'; // Ton client Supabase sécurisé
+import { supabase } from '../db'; // Ton client Supabase sécurisé
 
 const router = Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
