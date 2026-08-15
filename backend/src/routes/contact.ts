@@ -4,7 +4,7 @@ import axios from 'axios';
 import { supabase } from '../db'; // Ton client Supabase sécurisé
 
 const router = Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 router.post('/contact', async (req, res) => {
   const { name, email, subject, message } = req.body;
