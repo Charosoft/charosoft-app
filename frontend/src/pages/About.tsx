@@ -77,19 +77,19 @@ const About: React.FC = () => {
 
         </div>
       </div>
-          <a
-    id="cy-effective-orcid-url"
-    class="underline"
-     href="https://orcid.org/0009-0009-6680-4144"
-     target="orcid.widget"
-     rel="me noopener noreferrer"
-     style="vertical-align: top">
-     <img
-        src="https://orcid.org/sites/default/files/images/orcid_16x16.png"
-        style="width: 1em; margin-inline-start: 0.5em"
-        alt="ORCID iD icon"/>
-      https://orcid.org/0009-0009-6680-4144
-    </a>
+      <a
+  href="https://orcid.org/0009-0009-6680-4144"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 underline font-medium"
+>
+  <img
+    src="https://orcid.org/sites/default/files/images/orcid_16x16.png"
+    className="w-4 h-4"
+    alt="ORCID iD icon"
+  />
+  <span>https://orcid.org/0009-0009-6680-4144</span>
+</a>
     </div>
   );
 };
