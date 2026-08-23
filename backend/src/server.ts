@@ -6,6 +6,10 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import './db'; // Charge le client Supabase
+import analyticsRoutes from './routes/analytics';
+
+// ...
+
 
 import projectRoutes from './routes/projectRoutes';
 import messageRoutes from './routes/messageRoutes';
@@ -52,6 +56,8 @@ app.options('*', cors(corsOptions));
 // 3. Middlewares pour lire le JSON et les données de formulaires
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+
+app.use('/api/analytics', analyticsRoutes);
 
 // Service des fichiers statiques (images / fichiers uploadés)
 app.use('/uploads', express.static(uploadsDir));
