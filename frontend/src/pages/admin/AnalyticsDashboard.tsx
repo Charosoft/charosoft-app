@@ -63,7 +63,7 @@ export const AnalyticsDashboard: React.FC = () => {
               Aucune visite enregistrée pour le moment.
             </div>
           ) : (
-            <ResponsiveContainer width="99%" height="100%">
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.daily} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} allowDecimals={false} />
@@ -71,7 +71,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
                   labelStyle={{ color: '#f8fafc' }}
                 />
-                <Bar dataKey="visits" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="visits" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
               </BarChart>
             </ResponsiveContainer>
           )}
