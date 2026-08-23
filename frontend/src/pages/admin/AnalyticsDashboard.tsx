@@ -1,4 +1,3 @@
-// frontend/src/components/admin/AnalyticsDashboard.tsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -17,7 +16,6 @@ export const AnalyticsDashboard: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Définition de l'URL d'API avec fallback vers Render
         const API_URL =
           import.meta.env?.VITE_API_BASE_URL ||
           import.meta.env?.VITE_API_URL ||
@@ -59,21 +57,21 @@ export const AnalyticsDashboard: React.FC = () => {
         <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
           📊 Visites par jour
         </h3>
-        <div className="h-64 w-full">
+        <div style={{ width: '100%', height: 260 }}>
           {stats.daily.length === 0 ? (
             <div className="h-full flex items-center justify-center text-slate-500 text-sm">
               Aucune visite enregistrée pour le moment.
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.daily}>
+            <ResponsiveContainer width="99%" height="100%">
+              <BarChart data={stats.daily} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} allowDecimals={false} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
                   labelStyle={{ color: '#f8fafc' }}
                 />
-                <Bar dataKey="visits" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="visits" fill="#3b82f6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

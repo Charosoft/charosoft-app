@@ -4,12 +4,17 @@ import { supabase } from '../db';
 
 const router = Router();
 
-// Route pour enregistrer une visite
 router.post('/track', async (req, res) => {
   try {
-    let ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
+    // Extraction de la vraie IP client
+    const forwarded = req.headers['x-forwarded-for'];
+    let ip = typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : req.ip || req.socket.remoteAddress || '';
 
-    // En dev/local, fallback sur une IP de Kinshasa
+    if (ip.includes('::ffff:')) {
+      ip = ip.replace('::ffff:', '');
+    }
+
+    // Fallback local dev
     if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
       ip = '105.235.132.1';
     }
@@ -21,16 +26,16 @@ router.post('/track', async (req, res) => {
     let country_code = 'XX';
     let city = 'Inconnu';
 
-    // Géolocalisation avec timeout de 2s
+    // Requête vers ip-api.com (service HTTP gratuit très rapide)
     try {
-      const geoRes = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 2000 });
-      if (geoRes.data) {
-        country = geoRes.data.country_name || 'Inconnu';
-        country_code = geoRes.data.country_code || 'XX';
+      const geoRes = await axios.get(`http://ip-api.com/json/${ip}`, { timeout: 3000 });
+      if (geoRes.data && geoRes.data.status === 'success') {
+        country = geoRes.data.country || 'Inconnu';
+        country_code = geoRes.data.countryCode || 'XX';
         city = geoRes.data.city || 'Inconnu';
       }
-    } catch {
-      // Si l'API de géolocalisation ne répond pas, on continue quand même avec "Inconnu"
+    } catch (e) {
+      console.error('Erreur API GeoIP:', e);
     }
 
     const { error } = await supabase.from('page_views').insert([
@@ -56,8 +61,7 @@ router.post('/track', async (req, res) => {
   }
 });
 
-// Route pour récupérer les statistiques (Admin)
-router.get('/stats', async (req, res) => {
+router.get('/stats', async (_req, res) => {
   try {
     const { data: views, error } = await supabase
       .from('page_views')
