@@ -4,8 +4,22 @@ import BackButton from '../../components/BackButton';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
+import React from 'react';
+import { AnalyticsDashboard } from '../../components/admin/AnalyticsDashboard';
 
 // URL centralisée de l'API (bascule automatique sur Render si la variable n'est pas définie)
+const Dashboard: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-slate-950 text-white p-6">
+      <h1 className="text-2xl font-bold mb-6">Panneau d'administration CHAROSOFT</h1>
+      
+      {/* Affichage du dashboard Analytics */}
+      <AnalyticsDashboard />
+    </div>
+  );
+};
+
+
 const API_BASE_URL =
   import.meta.env?.VITE_API_BASE_URL ||
   'https://charosoft-api.onrender.com';
