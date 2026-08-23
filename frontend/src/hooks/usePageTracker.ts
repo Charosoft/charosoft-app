@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
+// Utilisation directe de l'URL de prod en fallback
 const API_BASE_URL =
   import.meta.env?.VITE_API_BASE_URL ||
   import.meta.env?.VITE_API_URL ||
@@ -12,7 +13,6 @@ export const usePageTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Ne pas enregistrer les visites de la page d'administration
     if (location.pathname.startsWith('/admin')) return;
 
     const recordVisit = async () => {
@@ -21,7 +21,7 @@ export const usePageTracker = () => {
           page_path: location.pathname,
         });
       } catch (error) {
-        console.error('Erreur lors de l\'enregistrement de la visite :', error);
+        console.error('Erreur enregistrement visite :', error);
       }
     };
 
