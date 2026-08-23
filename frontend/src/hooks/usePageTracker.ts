@@ -8,7 +8,7 @@ export const usePageTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Ne pas enregistrer les visites sur l'admin
+    // Ne pas enregistrer les visites de la page d'administration
     if (location.pathname.startsWith('/admin')) return;
 
     const recordVisit = async () => {
@@ -17,7 +17,7 @@ export const usePageTracker = () => {
           page_path: location.pathname,
         });
       } catch (error) {
-        console.error('Erreur enregistrement visite :', error);
+        console.error('Erreur lors de l\'enregistrement de la visite :', error);
       }
     };
 
