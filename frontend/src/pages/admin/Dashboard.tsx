@@ -16,7 +16,7 @@ export const Dashboard: React.FC = () => {
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Gestion des onglets (Ajout de 'analytics')
+  // Gestion des onglets
   const [activeTab, setActiveTab] = useState<'analytics' | 'projects' | 'messages'>('analytics');
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<ClientMessage[]>([]);
@@ -123,7 +123,18 @@ export const Dashboard: React.FC = () => {
       await axios.delete(`${API_BASE_URL}/api/projects/${id}`);
       fetchData();
     } catch (error) {
-      console.error('Erreur suppression :', error);
+      console.error('Erreur suppression projet :', error);
+    }
+  };
+
+  // Suppression d'un message client
+  const handleDeleteMessage = async (id?: string) => {
+    if (!id || !window.confirm('Voulez-vous vraiment supprimer ce message ?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/api/messages/${id}`);
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+    } catch (error) {
+      console.error('Erreur suppression message :', error);
     }
   };
 
@@ -332,7 +343,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Messages Clients */
+            /* Messages Clients avec Bouton de Suppression */
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-white mb-4">Messages Clients</h2>
               {messages.length === 0 ? (
@@ -345,6 +356,12 @@ export const Dashboard: React.FC = () => {
                         <h3 className="font-bold text-white text-lg">{m.client_name}</h3>
                         <p className="text-xs text-blue-400">{m.client_email}</p>
                       </div>
+                      <button
+                        onClick={() => handleDeleteMessage(m.id)}
+                        className="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded text-xs transition"
+                      >
+                        Supprimer
+                      </button>
                     </div>
                     {m.subject && <p className="text-sm font-semibold text-slate-300">Sujet : {m.subject}</p>}
                     <p className="text-sm text-slate-400 whitespace-pre-wrap">{m.message}</p>
