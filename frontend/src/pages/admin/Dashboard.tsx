@@ -4,38 +4,25 @@ import BackButton from '../../components/BackButton';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
-import React from 'react';
-import { AnalyticsDashboard } from '../../components/admin/AnalyticsDashboard';
-
-// URL centralisée de l'API (bascule automatique sur Render si la variable n'est pas définie)
-const Dashboard: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
-      <h1 className="text-2xl font-bold mb-6">Panneau d'administration CHAROSOFT</h1>
-      
-      {/* Affichage du dashboard Analytics */}
-      <AnalyticsDashboard />
-    </div>
-  );
-};
-
+import { AnalyticsDashboard } from '../../pages/admin/AnalyticsDashboard';
 
 const API_BASE_URL =
   import.meta.env?.VITE_API_BASE_URL ||
   'https://charosoft-api.onrender.com';
 
 export const Dashboard: React.FC = () => {
-  // Authentification Admin simple
+  // Authentification Admin
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'projects' | 'messages'>('projects');
+  // Gestion des onglets (Ajout de 'analytics')
+  const [activeTab, setActiveTab] = useState<'analytics' | 'projects' | 'messages'>('analytics');
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<ClientMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // États du formulaire
+  // États du formulaire projet
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
@@ -105,18 +92,14 @@ export const Dashboard: React.FC = () => {
     formData.append('live_url', liveUrl);
     formData.append('technologies', technologies);
 
-    if (thumbnailFile) {
-      formData.append('thumbnail', thumbnailFile);
-    }
-    if (videoFile) {
-      formData.append('video', videoFile);
-    }
+    if (thumbnailFile) formData.append('thumbnail', thumbnailFile);
+    if (videoFile) formData.append('video', videoFile);
 
     try {
       await axios.post(`${API_BASE_URL}/api/projects`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setFormStatus('Projet et fichiers publiés avec succès !');
+      setFormStatus('Projet publié avec succès !');
       setTitle('');
       setSlug('');
       setDescription('');
@@ -128,7 +111,7 @@ export const Dashboard: React.FC = () => {
       fetchData();
     } catch (error) {
       console.error('Erreur création projet :', error);
-      setFormStatus('Erreur lors de la publication du projet.');
+      setFormStatus('Erreur lors de la publication.');
     } finally {
       setUploading(false);
     }
@@ -144,7 +127,6 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  // Écran de Connexion Secrète
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 text-white">
@@ -153,8 +135,8 @@ export const Dashboard: React.FC = () => {
           className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full space-y-5 shadow-2xl"
         >
           <h2 className="text-2xl font-bold text-center text-blue-400">Accès Administrateur</h2>
-          <p className="text-xs text-slate-400 text-center">Zone réservée uniquement aux administrateurs de la plateforme.</p>
-          
+          <p className="text-xs text-slate-400 text-center">Zone réservée aux administrateurs CHAROSOFT.</p>
+
           {authError && (
             <div className="p-3 bg-rose-950/80 border border-rose-800 text-rose-300 text-xs rounded-lg text-center">
               {authError}
@@ -190,14 +172,22 @@ export const Dashboard: React.FC = () => {
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-10">
-          <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 pb-4 border-b border-slate-800">
             <div>
               <BackButton label="Retour au site" fallbackUrl="/" />
-              <h1 className="text-3xl font-bold text-white">Espace d'Administration</h1>
-              <p className="text-slate-400 text-sm mt-1">Gérez vos projets et messages reçus.</p>
+              <h1 className="text-3xl font-bold text-white mt-2">Espace d'Administration</h1>
+              <p className="text-slate-400 text-sm mt-1">Supervision du trafic, des projets et messages.</p>
             </div>
 
-            <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
+            <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800 w-fit">
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition ${
+                  activeTab === 'analytics' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                📈 Trafic
+              </button>
               <button
                 onClick={() => setActiveTab('projects')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition ${
@@ -217,13 +207,16 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {loading ? (
+          {/* CONTENU SELON L'ONGLET SÉLECTIONNÉ */}
+          {activeTab === 'analytics' ? (
+            <AnalyticsDashboard />
+          ) : loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
             </div>
           ) : activeTab === 'projects' ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Formulaire avec upload */}
+              {/* Formulaire */}
               <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit">
                 <h2 className="text-xl font-bold text-white mb-4">Ajouter un Projet</h2>
 
@@ -262,33 +255,33 @@ export const Dashboard: React.FC = () => {
                       type="file"
                       accept="image/*"
                       onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 mb-1">Vidéo Démo (depuis ton PC)</label>
+                    <label className="block text-slate-300 mb-1">Vidéo Démo</label>
                     <input
                       type="file"
                       accept="video/*"
                       onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 mb-1">Lien du site web (Optionnel)</label>
+                    <label className="block text-slate-300 mb-1">Lien du site web</label>
                     <input
                       type="url"
                       value={liveUrl}
                       onChange={(e) => setLiveUrl(e.target.value)}
                       className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                      placeholder="https://mon-site.com"
+                      placeholder="https://charosoft.vercel.app"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 mb-1">Technologies (ex: React, Cisco, PHP)</label>
+                    <label className="block text-slate-300 mb-1">Technologies</label>
                     <input
                       type="text"
                       value={technologies}
@@ -302,12 +295,12 @@ export const Dashboard: React.FC = () => {
                     disabled={uploading}
                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition mt-2 disabled:opacity-50"
                   >
-                    {uploading ? 'Envoi des fichiers...' : 'Publier le projet'}
+                    {uploading ? 'Envoi...' : 'Publier le projet'}
                   </button>
                 </form>
               </div>
 
-              {/* Liste des projets actuels */}
+              {/* Liste des projets */}
               <div className="lg:col-span-2 space-y-4">
                 <h2 className="text-xl font-bold text-white mb-4">Projets enregistrés</h2>
                 {projects.length === 0 ? (
@@ -339,7 +332,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Liste des messages */
+            /* Messages Clients */
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-white mb-4">Messages Clients</h2>
               {messages.length === 0 ? (
