@@ -8,34 +8,44 @@ const router = Router();
 // Route pour enregistrer une visite
 router.post('/track', async (req, res) => {
   try {
-    // 1. Récupération de l'adresse IP réelle
+    // 1. Récupération de l'adresse IP
     let ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '';
 
-    // Si test en local (localhost / 127.0.0.1 / ::1), utiliser une IP de test pour la géolocalisation
-    if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.')) {
-      ip = '105.235.132.1'; // Exemple d'IP de Kinshasa pour la phase de dev
+    // En dev ou local, fallback sur une IP publique de Kinshasa
+    if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+      ip = '105.235.132.1';
     }
 
     const { page_path } = req.body;
     const user_agent = req.headers['user-agent'] || 'Inconnu';
 
-    // 2. Appel à l'API gratuite ip-api pour géolocaliser l'IP
     let country = 'Inconnu';
     let country_code = 'XX';
     let city = 'Inconnu';
 
+    // 2. Géolocalisation sécurisée avec timeout (HTTPS)
     try {
-      const geoRes = await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,city`);
-      if (geoRes.data && geoRes.data.status === 'success') {
-        country = geoRes.data.country || 'Inconnu';
-        country_code = geoRes.data.countryCode || 'XX';
+      const geoRes = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 2000 });
+      if (geoRes.data) {
+        country = geoRes.data.country_name || 'Inconnu';
+        country_code = geoRes.data.country_code || 'XX';
         city = geoRes.data.city || 'Inconnu';
       }
     } catch (geoErr) {
-      console.error('Erreur géolocalisation IP:', geoErr);
+      // Fallback vers ip-api HTTP si ipapi.co échoue
+      try {
+        const altGeo = await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,city`, { timeout: 2000 });
+        if (altGeo.data && altGeo.data.status === 'success') {
+          country = altGeo.data.country || 'Inconnu';
+          country_code = altGeo.data.countryCode || 'XX';
+          city = altGeo.data.city || 'Inconnu';
+        }
+      } catch (e) {
+        console.warn('Géolocalisation indisponible, enregistrement avec valeurs par défaut.');
+      }
     }
 
-    // 3. Insertion dans Supabase
+    // 3. Insertion garantie dans Supabase
     const { error } = await supabase.from('page_views').insert([
       {
         ip_address: ip,
@@ -47,7 +57,10 @@ router.post('/track', async (req, res) => {
       }
     ]);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erreur insertion Supabase analytics:', error.message);
+      return res.status(500).json({ error: error.message });
+    }
 
     return res.status(200).json({ success: true });
   } catch (err: any) {
@@ -56,10 +69,9 @@ router.post('/track', async (req, res) => {
   }
 });
 
-// Route pour récupérer l'agrégation des statistiques (Admin)
+// Route pour récupérer les statistiques (Admin)
 router.get('/stats', async (req, res) => {
   try {
-    // Récupérer les 30 derniers jours
     const { data: views, error } = await supabase
       .from('page_views')
       .select('id, ip_address, country, country_code, city, created_at')
@@ -67,11 +79,8 @@ router.get('/stats', async (req, res) => {
 
     if (error) throw error;
 
-    // A. Agrégation par Pays
     const countryMap: Record<string, { country: string; code: string; total: number; ips: Set<string> }> = {};
-    // B. Agrégation par Ville
     const cityMap: Record<string, { city: string; country: string; total: number; ips: Set<string> }> = {};
-    // C. Visites par Jour (les 7 derniers jours)
     const dailyMap: Record<string, number> = {};
 
     views?.forEach((v) => {
@@ -90,12 +99,11 @@ router.get('/stats', async (req, res) => {
       cityMap[cityKey].total += 1;
       cityMap[cityKey].ips.add(v.ip_address);
 
-      // Jours (Format DD/MM)
+      // Jours
       const dateKey = new Date(v.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       dailyMap[dateKey] = (dailyMap[dateKey] || 0) + 1;
     });
 
-    // Formater les données pour le frontend
     const byCountry = Object.values(countryMap)
       .map(c => ({ country: c.country, code: c.code, total: c.total, uniqueIps: c.ips.size }))
       .sort((a, b) => b.total - a.total);
