@@ -26,12 +26,12 @@ export const Hero: React.FC = () => (
       <div className="lg:col-span-7">
         <motion.p
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-          className="label !text-sm mb-8"
+          className="label !text-xs sm:!text-sm mb-6"
         >
           Charosoft — Vers l’horizon numérique
         </motion.p>
 
-        <h1 className="text-5xl md:text-7xl leading-[1.08]">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl leading-[1.12]">
           <MaskText text="Logiciels, réseaux et design pour les entreprises qui avancent." />
         </h1>
 
@@ -46,17 +46,17 @@ export const Hero: React.FC = () => (
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }}
           className="mt-12 flex flex-wrap gap-4"
         >
-          <a href="#contact" className="btn-primary !px-8 !py-4 text-lg">
+          <a href="#contact" className="btn-primary sm:!px-8 sm:!py-4 sm:text-lg">
             Démarrer un projet <ArrowRight size={20} />
           </a>
-          <a href="#services" className="btn-ghost !px-8 !py-4 text-lg">Nos services</a>
+          <a href="#services" className="btn-ghost sm:!px-8 sm:!py-4 sm:text-lg">Nos services</a>
         </motion.div>
       </div>
 
-      <div className="lg:col-span-5 flex justify-center">
+      <div className="lg:col-span-5 flex justify-center lg:-mt-10">
         <svg
-          viewBox="0 0 400 400"
-          className="w-full max-w-lg animate-float"
+          viewBox="40 40 320 345"
+          className="w-full max-w-[15rem] sm:max-w-sm lg:max-w-lg animate-float"
           fill="none" stroke="#FF9D10" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden
         >
           {/* Dôme */}
@@ -82,7 +82,7 @@ export const Hero: React.FC = () => (
       </div>
     </div>
 
-    <div className="relative max-w-7xl mx-auto w-full px-6 mt-16 pb-10">
+    <div className="relative max-w-7xl mx-auto w-full px-6 mt-16 pb-10 gap-8 lg:gap-12">
       <div className="grid sm:grid-cols-3 gap-4 border-t border-white/10 pt-6 text-base text-white/60">
         <span>Kinshasa, RD Congo</span>
         <span>Logiciel · Réseaux · Design</span>

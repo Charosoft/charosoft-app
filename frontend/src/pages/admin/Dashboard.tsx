@@ -20,7 +20,11 @@ const fileCls =
 
 export const Dashboard: React.FC = () => {
   // Authentification Admin
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const t = sessionStorage.getItem('admin_token');
+    if (t) axios.defaults.headers.common.Authorization = `Bearer ${t}`;
+    return !!t;
+  });
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -43,13 +47,23 @@ export const Dashboard: React.FC = () => {
   const [formStatus, setFormStatus] = useState<string | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_token');
+    delete axios.defaults.headers.common.Authorization;
+    setIsAuthenticated(false);
+    setPasswordInput('');
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === 'charosoft2026') {
+    setAuthError(null);
+    try {
+      const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, { password: passwordInput });
+      sessionStorage.setItem('admin_token', data.token);
+      axios.defaults.headers.common.Authorization = `Bearer ${data.token}`;
       setIsAuthenticated(true);
-      setAuthError(null);
-    } else {
-      setAuthError('Mot de passe incorrect.');
+    } catch (err: any) {
+      setAuthError(err.response?.data?.error || 'Connexion impossible. Réessayez.');
     }
   };
 
@@ -62,9 +76,10 @@ export const Dashboard: React.FC = () => {
       ]);
       setProjects(projectsRes.data);
       setMessages(messagesRes.data);
-    } catch (error) {
+        } catch (error: any) {
+      if (error.response?.status === 401) return handleLogout();
       console.error('Erreur chargement Dashboard :', error);
-    } finally {
+    }finally {
       setLoading(false);
     }
   };
@@ -167,6 +182,7 @@ export const Dashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8 pb-6 border-b border-white/10">
             <div>
               <BackButton label="Retour au site" fallbackUrl="/" />
+              <button onClick={handleLogout} className="ml-4 text-xs text-white/50 hover:text-brand transition">Se déconnecter</button>
               <p className="label mt-4 mb-2">Administration</p>
               <h1 className="text-2xl md:text-3xl">Espace d'administration</h1>
               <p className="text-white/50 text-sm mt-2">Supervision du trafic, des projets et des messages.</p>
