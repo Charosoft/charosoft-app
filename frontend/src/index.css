@@ -4,12 +4,13 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
+  html { font-size: 17px; }
   body { @apply bg-ink-900 text-white antialiased font-sans selection:bg-brand selection:text-ink-900; }
   h1, h2, h3 { @apply font-display; }
 }
 
 @layer components {
-  .label { @apply text-[11px] tracking-[.22em] uppercase text-brand font-semibold; }
+  .label { @apply text-xs tracking-[.22em] uppercase text-brand font-semibold; }
   .glass { @apply bg-ink-800/70 border border-white/10 rounded-lg; }
   .btn-primary {
     @apply inline-flex items-center gap-2 px-6 py-3 rounded-md bg-brand text-ink-900 font-semibold

@@ -41,20 +41,23 @@ export const Eyebrow: React.FC<{ n: string; children: React.ReactNode }> = ({ n,
 );
 
 // Révélation mot par mot, masquée
-export const MaskText: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => (
-  <span className={className}>
-    {text.split(' ').map((w, i) => (
-      <span key={i} className="inline-block overflow-hidden align-bottom mr-[.25em]">
-        <motion.span
-          className="inline-block"
-          initial={{ y: '110%' }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {w}
-        </motion.span>
-      </span>
-    ))}
-  </span>
-);
+export const MaskText: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: '0px 0px -10% 0px' });
+  return (
+    <span ref={ref} className={`block ${className}`}>
+      {text.split(' ').map((w, i) => (
+        <span key={i} className="inline-block overflow-hidden align-bottom mr-[.25em] pb-[.12em]">
+          <motion.span
+            className="inline-block"
+            initial={{ y: '110%' }}
+            animate={{ y: inView ? 0 : '110%' }}
+            transition={{ duration: 0.8, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {w}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+};

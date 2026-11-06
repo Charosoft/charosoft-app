@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
           <span className="font-display tracking-widest text-sm">CHAROSOFT</span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 text-sm">
+        <div className="hidden md:flex items-center gap-8 text-base">
           {links.map((x) => (
             <a key={x.l} href={x.h} className="relative text-white/80 hover:text-brand transition group">
               {x.l}
