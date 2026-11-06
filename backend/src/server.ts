@@ -11,6 +11,7 @@ import contactRoute from './routes/contact';
 import analyticsRoutes from './routes/analytics';
 import projectRoutes from './routes/projectRoutes';
 import messageRoutes from './routes/messageRoutes';
+import chatRoutes from './routes/chat';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,7 +55,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api', contactRoute);
-
+app.use('/api/chat', chatRoutes);
 app.use('/uploads', express.static(uploadsDir));
 
 app.get('/', (_req: Request, res: Response) => {

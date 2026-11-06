@@ -4,7 +4,7 @@ import axios from 'axios';
 import { supabase } from '../db';
 
 const router = Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 router.post('/contact', async (req, res) => {
   const { name, email, subject, message } = req.body;
@@ -46,7 +46,7 @@ router.post('/contact', async (req, res) => {
     }
 
     // 3. Notification Email via Resend
-    if (process.env.RESEND_API_KEY) {
+        if (resend) {
       try {
         const emailResult = await resend.emails.send({
           from: 'CHAROSOFT <onboarding@resend.dev>',

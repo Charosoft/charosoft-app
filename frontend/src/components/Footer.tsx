@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 py-8 px-4 text-center">
+    <footer className="bg-ink-800 border-t border-white/10 text-slate-400 py-8 px-4 text-center">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <p className="text-white font-bold text-lg">CHAROSOFT</p>

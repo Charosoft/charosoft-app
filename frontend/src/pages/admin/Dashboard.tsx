@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
 import BackButton from '../../components/BackButton';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import type { Project, ClientMessage } from '../../types';
-import { AnalyticsDashboard } from '../../pages/admin/AnalyticsDashboard';
+import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { LoginScreen, AdminTabs } from '../../components/AdminUI';
+import type { Tab } from '../../components/AdminUI';
 
 const API_BASE_URL =
   import.meta.env?.VITE_API_BASE_URL ||
   'https://charosoft-api.onrender.com';
+
+const inputCls =
+  'w-full bg-ink-900 border border-white/10 rounded-md px-3 py-2 text-white focus:outline-none focus:border-brand transition';
+const fileCls =
+  'w-full text-white/60 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand file:text-ink-900 cursor-pointer';
 
 export const Dashboard: React.FC = () => {
   // Authentification Admin
@@ -17,7 +25,7 @@ export const Dashboard: React.FC = () => {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Gestion des onglets
-  const [activeTab, setActiveTab] = useState<'analytics' | 'projects' | 'messages'>('analytics');
+  const [activeTab, setActiveTab] = useState<Tab>('analytics');
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<ClientMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -140,236 +148,213 @@ export const Dashboard: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 text-white">
-        <form
-          onSubmit={handleLogin}
-          className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full space-y-5 shadow-2xl"
-        >
-          <h2 className="text-2xl font-bold text-center text-blue-400">Accès Administrateur</h2>
-          <p className="text-xs text-slate-400 text-center">Zone réservée aux administrateurs CHAROSOFT.</p>
-
-          {authError && (
-            <div className="p-3 bg-rose-950/80 border border-rose-800 text-rose-300 text-xs rounded-lg text-center">
-              {authError}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm text-slate-300 mb-2">Mot de passe de sécurité</label>
-            <input
-              type="password"
-              required
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
-          >
-            Se Connecter
-          </button>
-        </form>
-      </div>
+      <LoginScreen
+        password={passwordInput}
+        setPassword={setPasswordInput}
+        error={authError}
+        onSubmit={handleLogin}
+      />
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
+    <div className="min-h-screen bg-ink-900 text-white flex flex-col justify-between">
       <div>
         <Navbar />
 
-        <main className="max-w-7xl mx-auto px-6 py-10">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 pb-4 border-b border-slate-800">
+        <main className="max-w-7xl mx-auto px-6 pt-28 pb-10">
+          {/* En-tête */}
+          <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8 pb-6 border-b border-white/10">
             <div>
               <BackButton label="Retour au site" fallbackUrl="/" />
-              <h1 className="text-3xl font-bold text-white mt-2">Espace d'Administration</h1>
-              <p className="text-slate-400 text-sm mt-1">Supervision du trafic, des projets et messages.</p>
+              <p className="label mt-4 mb-2">Administration</p>
+              <h1 className="text-2xl md:text-3xl">Espace d'administration</h1>
+              <p className="text-white/50 text-sm mt-2">Supervision du trafic, des projets et des messages.</p>
             </div>
 
-            <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800 w-fit">
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition ${
-                  activeTab === 'analytics' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                📈 Trafic
-              </button>
-              <button
-                onClick={() => setActiveTab('projects')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition ${
-                  activeTab === 'projects' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Projets ({projects.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('messages')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition ${
-                  activeTab === 'messages' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Messages ({messages.length})
-              </button>
-            </div>
+            <AdminTabs
+              active={activeTab}
+              onChange={setActiveTab}
+              counts={{ projects: projects.length, messages: messages.length }}
+            />
           </div>
 
           {/* CONTENU SELON L'ONGLET SÉLECTIONNÉ */}
-          {activeTab === 'analytics' ? (
-            <AnalyticsDashboard />
-          ) : loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : activeTab === 'projects' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Formulaire */}
-              <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit">
-                <h2 className="text-xl font-bold text-white mb-4">Ajouter un Projet</h2>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === 'analytics' ? (
+                <AnalyticsDashboard />
+              ) : loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand"></div>
+                </div>
+              ) : activeTab === 'projects' ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Formulaire */}
+                  <div className="lg:col-span-1 bg-ink-800/60 border border-white/10 rounded-lg p-6 h-fit">
+                    <h2 className="font-display text-base mb-5">Ajouter un projet</h2>
 
-                {formStatus && (
-                  <div className="mb-4 p-3 rounded text-sm bg-slate-800 border border-slate-700 text-blue-400">
-                    {formStatus}
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateProject} className="space-y-4 text-sm">
-                  <div>
-                    <label className="block text-slate-300 mb-1">Titre du projet</label>
-                    <input
-                      type="text"
-                      required
-                      value={title}
-                      onChange={handleTitleChange}
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 mb-1">Description courte</label>
-                    <textarea
-                      required
-                      rows={2}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500 resize-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 mb-1">Miniature (Image de couverture)</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 mb-1">Vidéo Démo</label>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                      className="w-full text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-blue-600 file:text-white cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 mb-1">Lien du site web</label>
-                    <input
-                      type="url"
-                      value={liveUrl}
-                      onChange={(e) => setLiveUrl(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                      placeholder="https://charosoft.vercel.app"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-300 mb-1">Technologies</label>
-                    <input
-                      type="text"
-                      value={technologies}
-                      onChange={(e) => setTechnologies(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={uploading}
-                    className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition mt-2 disabled:opacity-50"
-                  >
-                    {uploading ? 'Envoi...' : 'Publier le projet'}
-                  </button>
-                </form>
-              </div>
-
-              {/* Liste des projets */}
-              <div className="lg:col-span-2 space-y-4">
-                <h2 className="text-xl font-bold text-white mb-4">Projets enregistrés</h2>
-                {projects.length === 0 ? (
-                  <p className="text-slate-500">Aucun projet enregistré.</p>
-                ) : (
-                  projects.map((p) => (
-                    <div
-                      key={p.id}
-                      className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between items-center gap-4"
-                    >
-                      <div className="flex items-center gap-4">
-                        {p.thumbnail_url && (
-                          <img src={p.thumbnail_url} alt={p.title} className="w-16 h-12 object-cover rounded" />
-                        )}
-                        <div>
-                          <h3 className="font-bold text-white">{p.title}</h3>
-                          <p className="text-xs text-slate-400 line-clamp-1">{p.description}</p>
-                        </div>
+                    {formStatus && (
+                      <div className="mb-4 p-3 rounded-md text-sm bg-ink-900 border border-brand/40 text-brand">
+                        {formStatus}
                       </div>
-                      <button
-                        onClick={() => handleDeleteProject(p.id)}
-                        className="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded text-xs transition"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          ) : (
-            /* Messages Clients avec Bouton de Suppression */
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white mb-4">Messages Clients</h2>
-              {messages.length === 0 ? (
-                <p className="text-slate-500">Aucun message pour le moment.</p>
-              ) : (
-                messages.map((m) => (
-                  <div key={m.id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
-                    <div className="flex justify-between items-start border-b border-slate-800 pb-2">
+                    )}
+
+                    <form onSubmit={handleCreateProject} className="space-y-4 text-sm">
                       <div>
-                        <h3 className="font-bold text-white text-lg">{m.client_name}</h3>
-                        <p className="text-xs text-blue-400">{m.client_email}</p>
+                        <label className="block text-white/70 mb-1">Titre du projet</label>
+                        <input type="text" required value={title} onChange={handleTitleChange} className={inputCls} />
                       </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Description courte</label>
+                        <textarea
+                          required
+                          rows={2}
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          className={`${inputCls} resize-none`}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Description complète</label>
+                        <textarea
+                          rows={4}
+                          value={fullContent}
+                          onChange={(e) => setFullContent(e.target.value)}
+                          className={`${inputCls} resize-none`}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Miniature (image de couverture)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                          className={fileCls}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Vidéo démo</label>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                          className={fileCls}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Lien du site web</label>
+                        <input
+                          type="url"
+                          value={liveUrl}
+                          onChange={(e) => setLiveUrl(e.target.value)}
+                          className={inputCls}
+                          placeholder="https://charosoft.vercel.app"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/70 mb-1">Technologies (séparées par des virgules)</label>
+                        <input
+                          type="text"
+                          value={technologies}
+                          onChange={(e) => setTechnologies(e.target.value)}
+                          className={inputCls}
+                          placeholder="React, Node.js, PostgreSQL"
+                        />
+                      </div>
+
                       <button
-                        onClick={() => handleDeleteMessage(m.id)}
-                        className="px-3 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded text-xs transition"
+                        type="submit"
+                        disabled={uploading}
+                        className="btn-primary w-full justify-center mt-2 disabled:opacity-50"
                       >
-                        Supprimer
+                        {uploading ? 'Envoi...' : 'Publier le projet'}
                       </button>
-                    </div>
-                    {m.subject && <p className="text-sm font-semibold text-slate-300">Sujet : {m.subject}</p>}
-                    <p className="text-sm text-slate-400 whitespace-pre-wrap">{m.message}</p>
+                    </form>
                   </div>
-                ))
+
+                  {/* Liste des projets */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <h2 className="font-display text-base mb-4">Projets enregistrés</h2>
+                    {projects.length === 0 ? (
+                      <p className="text-white/40">Aucun projet enregistré.</p>
+                    ) : (
+                      projects.map((p, i) => (
+                        <motion.div
+                          key={p.id}
+                          initial={{ opacity: 0, y: 14 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="border border-white/10 bg-ink-800/60 rounded-lg p-4 flex justify-between items-center gap-4 hover:border-brand/40 transition"
+                        >
+                          <div className="flex items-center gap-4 min-w-0">
+                            {p.thumbnail_url && (
+                              <img src={p.thumbnail_url} alt={p.title} className="w-16 h-12 object-cover rounded" />
+                            )}
+                            <div className="min-w-0">
+                              <h3 className="font-semibold truncate">{p.title}</h3>
+                              <p className="text-xs text-white/50 line-clamp-1">{p.description}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteProject(p.id)}
+                            className="px-3 py-1 border border-rose-800 text-rose-300 hover:bg-rose-950 rounded text-xs transition shrink-0"
+                          >
+                            Supprimer
+                          </button>
+                        </motion.div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Messages clients */
+                <div className="space-y-4">
+                  <h2 className="font-display text-base mb-4">Messages clients</h2>
+                  {messages.length === 0 ? (
+                    <p className="text-white/40">Aucun message pour le moment.</p>
+                  ) : (
+                    messages.map((m, i) => (
+                      <motion.div
+                        key={m.id}
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="border border-white/10 bg-ink-800/60 rounded-lg p-5 space-y-2 hover:border-brand/40 transition"
+                      >
+                        <div className="flex justify-between items-start border-b border-white/10 pb-2">
+                          <div>
+                            <h3 className="font-semibold text-lg">{m.client_name}</h3>
+                            <p className="text-xs text-brand">{m.client_email}</p>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteMessage(m.id)}
+                            className="px-3 py-1 border border-rose-800 text-rose-300 hover:bg-rose-950 rounded text-xs transition"
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                        {m.subject && <p className="text-sm font-semibold text-white/80">Sujet : {m.subject}</p>}
+                        <p className="text-sm text-white/60 whitespace-pre-wrap">{m.message}</p>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
               )}
-            </div>
-          )}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 

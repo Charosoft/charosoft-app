@@ -1,97 +1,52 @@
 import React from 'react';
 import BackButton from '../components/BackButton';
-const About: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-300 py-16 px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <BackButton label="Retour à l'accueil" />
-        {/* En-tête */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3">
-            À propos de moi
-          </h1>
-          <div className="h-1 w-20 bg-blue-600 rounded mx-auto"></div>
-        </div>
+import Navbar from '../components/Navbar';
+import { AgencyFooter } from '../components/Agency';
+import { Reveal, Eyebrow, MaskText } from '../components/ui';
 
-        {/* Section Principale */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
-          {/* Texte de présentation */}
-          <div className="lg:col-span-7 space-y-6 text-lg leading-relaxed bg-slate-900/50 p-8 rounded-2xl border border-slate-800 shadow-xl">
-            <p>
-              Salut ! Je suis <span className="text-white font-semibold">Jenovie Kola</span> (alias <span className="text-blue-400 font-semibold">Charosoft</span>), développeur full-stack et administrateur systèmes.
-            </p>
-            <p>
-              Naviguant au quotidien entre le développement logiciel et l'infrastructure réseau, je conçois des applications web modernes, des outils d'aide à la décision et des architectures informatiques performantes.
-            </p>
-            <p>
-              Également graphiste, j'attache une grande importance au design, à l'ergonomie (UX/UI) et à la finition visuelle de chaque projet que je réalise.
-            </p>
-          </div>
+const pillars = [
+  { t: 'Développement', d: 'Applications web, ERP et outils métier.', tech: 'Python · PHP · JavaScript · PostgreSQL' },
+  { t: 'Réseaux', d: 'Conception, déploiement et administration d’infrastructures.', tech: 'Administration réseaux · Sécurité' },
+  { t: 'Design', d: 'Identité visuelle, supports et interfaces soignées.', tech: 'Photoshop · Illustrator' },
+];
 
-          {/* Cartes des domaines d'expertise */}
-          <div className="lg:col-span-5 space-y-4">
-            
-            {/* Carte Développeur */}
-            <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-blue-500 transition-all duration-300 shadow-lg">
-              <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <span>💻</span> Développement Software & Web
-              </h3>
-              <p className="text-sm text-slate-400 mb-3">
-                Conception d'applications web modernes, d'APIs REST et d'outils décisionnels.
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs font-mono">
-                <span className="px-2 py-1 bg-blue-950 text-blue-300 rounded border border-blue-800">TypeScript</span>
-                <span className="px-2 py-1 bg-blue-950 text-blue-300 rounded border border-blue-800">React</span>
-                <span className="px-2 py-1 bg-blue-950 text-blue-300 rounded border border-blue-800">Node.js</span>
-                <span className="px-2 py-1 bg-blue-950 text-blue-300 rounded border border-blue-800">Python</span>
-              </div>
-            </div>
+const About: React.FC = () => (
+  <div className="min-h-screen">
+    <Navbar />
+    <main className="max-w-6xl mx-auto px-6 pt-36">
+      <BackButton label="Retour à l'accueil" />
+      <Eyebrow n="—">À propos de Charosoft</Eyebrow>
+      <h1 className="text-3xl md:text-5xl leading-tight max-w-4xl">
+        <MaskText text="Nous accompagnons les entreprises dans leur transformation numérique." />
+      </h1>
 
-            {/* Carte Réseaux */}
-            <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-emerald-500 transition-all duration-300 shadow-lg">
-              <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <span>🌐</span> Administration Réseaux & System
-              </h3>
-              <p className="text-sm text-slate-400 mb-3">
-                Virtualisation, routage, simulation d'infrastructures et gestion de parcs IT.
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs font-mono">
-                <span className="px-2 py-1 bg-emerald-950 text-emerald-300 rounded border border-emerald-800">Cisco</span>
-                <span className="px-2 py-1 bg-emerald-950 text-emerald-300 rounded border border-emerald-800">GNS3</span>
-                <span className="px-2 py-1 bg-emerald-950 text-emerald-300 rounded border border-emerald-800">VMware</span>
-              </div>
-            </div>
-
-            {/* Carte Graphic Design */}
-            <div className="p-5 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500 transition-all duration-300 shadow-lg">
-              <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <span>🎨</span> Graphic Design & UX/UI
-              </h3>
-              <p className="text-sm text-slate-400">
-                Création visuelle, identité de marque et maquettage d'interfaces intuitives.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
+      <div className="grid lg:grid-cols-12 gap-12 mt-16">
+        <Reveal className="lg:col-span-7 space-y-5 text-lg text-white/70 leading-relaxed">
+          <p>Basée à Kinshasa, Charosoft conçoit des logiciels et des infrastructures réseau pour les organisations qui veulent des outils fiables et adaptés à leur réalité.</p>
+          <p>Notre force : réunir sous un même toit le développement, l’infrastructure et le design, pour livrer des solutions cohérentes de bout en bout.</p>
+        </Reveal>
+        <Reveal delay={0.15} className="lg:col-span-5 border-l border-brand pl-8">
+          <p className="label mb-3">Fondateur</p>
+          <p className="font-display text-xl">Jenovie Kola</p>
+          <p className="text-white/60 text-sm mt-2">Ingénieur Réseaux & Logiciels</p>
+        </Reveal>
       </div>
-      <a
-  href="https://orcid.org/0009-0009-6680-4144"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 underline font-medium"
->
-  <img
-    src="https://orcid.org/sites/default/files/images/orcid_16x16.png"
-    className="w-4 h-4"
-    alt="ORCID iD icon"
-  />
-  <span>https://orcid.org/0009-0009-6680-4144</span>
-</a>
-    </div>
-  );
-};
+
+      <div className="mt-24 border-t border-white/10">
+        {pillars.map((p, i) => (
+          <Reveal key={p.t} delay={i * 0.08}>
+            <div className="grid md:grid-cols-12 gap-4 py-8 border-b border-white/10 group">
+              <span className="font-display text-xs text-white/30 md:col-span-1">0{i + 1}</span>
+              <h3 className="md:col-span-4 font-display text-lg group-hover:text-brand transition">{p.t}</h3>
+              <p className="md:col-span-4 text-white/60">{p.d}</p>
+              <p className="md:col-span-3 text-xs text-white/40">{p.tech}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </main>
+    <AgencyFooter />
+  </div>
+);
 
 export default About;

@@ -3,26 +3,41 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-950 text-slate-100 antialiased selection:bg-blue-600 selection:text-white;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  html { scroll-behavior: smooth; }
+  body { @apply bg-ink-900 text-white antialiased font-sans selection:bg-brand selection:text-ink-900; }
+  h1, h2, h3 { @apply font-display; }
+}
+
+@layer components {
+  .label { @apply text-[11px] tracking-[.22em] uppercase text-brand font-semibold; }
+  .glass { @apply bg-ink-800/70 border border-white/10 rounded-lg; }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-md bg-brand text-ink-900 font-semibold
+           transition duration-300 hover:bg-brand-soft hover:-translate-y-0.5 active:scale-[.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-md border border-white/20 font-semibold
+           transition duration-300 hover:border-brand hover:text-brand active:scale-[.98];
+  }
+  .circuit-bg {
+    background-image:
+      linear-gradient(rgba(255,157,16,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,157,16,.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 70% 40%, #000 20%, transparent 70%);
   }
 }
 
-/* Personnalisation de la barre de défilement */
-::-webkit-scrollbar {
-  width: 8px;
+/* Grain léger : casse l'aspect « écran numérique trop lisse » */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-::-webkit-scrollbar-track {
-  background: #020617;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #141615; }
+::-webkit-scrollbar-thumb { background: #FF9D10; border-radius: 4px; }
 
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition-duration: .01ms !important; }
 }

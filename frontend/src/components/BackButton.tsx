@@ -24,7 +24,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
   return (
     <button
       onClick={handleGoBack}
-      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg transition-all duration-200 cursor-pointer mb-6"
+      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-400 hover:text-white bg-ink-800/80 hover:bg-slate-800 border border-white/10 rounded-lg transition-all duration-200 cursor-pointer mb-6"
     >
       {/* Icône flèche retour */}
       <svg 

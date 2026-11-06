@@ -1,85 +1,64 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { X, ExternalLink } from 'lucide-react';
 import type { Project } from '../types';
 
-interface ProjectModalProps {
-  project: Project | null;
-  onClose: () => void;
-}
+interface Props { project: Project | null; onClose: () => void }
 
-export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
-  if (!project) return null;
+export const ProjectModal: React.FC<Props> = ({ project, onClose }) => {
+  useEffect(() => {
+    if (!project) return;
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', k);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', k); document.body.style.overflow = ''; };
+  }, [project, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 text-slate-200">
-        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-          <h2 className="text-2xl font-bold text-white">{project.title}</h2>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white text-xl font-bold"
+    <AnimatePresence>
+      {project && (
+        <motion.div
+          className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-6"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+        >
+          <motion.div
+            onClick={(e) => e.stopPropagation()}
+            initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+            className="bg-ink-800 border border-white/10 sm:rounded-lg max-w-3xl w-full max-h-[92vh] overflow-y-auto"
           >
-            ✕
-          </button>
-        </div>
+            <div className="flex justify-between items-start gap-4 p-6 border-b border-white/10">
+              <div>
+                <p className="label mb-2">Réalisation</p>
+                <h2 className="text-2xl">{project.title}</h2>
+              </div>
+              <button onClick={onClose} aria-label="Fermer" className="p-2 text-white/50 hover:text-brand transition"><X /></button>
+            </div>
 
-        {/* Vidéo démonstrative */}
-        {project.video_demo_url ? (
-          <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-slate-800">
-            <video
-              src={project.video_demo_url}
-              controls
-              className="w-full h-full object-contain"
-            >
-              Votre navigateur ne supporte pas la lecture de vidéo.
-            </video>
-          </div>
-        ) : (
-          project.thumbnail_url && (
-            <img
-              src={project.thumbnail_url}
-              alt={project.title}
-              className="w-full h-64 object-cover rounded-lg"
-            />
-          )
-        )}
-
-        <div className="space-y-4">
-          <p className="text-slate-300 whitespace-pre-wrap">
-            {project.full_content || project.description}
-          </p>
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            {project.technologies?.map((tech, idx) => (
-              <span
-                key={idx}
-                className="px-3 py-1 text-xs bg-slate-800 text-blue-400 rounded-full border border-slate-700"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-          {project.live_url && (
-            <a
-              href={project.live_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
-            >
-              Visiter le site / lien du projet ↗
-            </a>
-          )}
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </div>
+            <div className="p-6 space-y-6">
+              {project.video_demo_url ? (
+                <video src={project.video_demo_url} controls className="w-full aspect-video rounded-lg bg-black object-contain" />
+              ) : (
+                project.thumbnail_url && <img src={project.thumbnail_url} alt={project.title} className="w-full rounded-lg" />
+              )}
+              <p className="text-white/70 whitespace-pre-wrap leading-relaxed">{project.full_content || project.description}</p>
+              {project.technologies?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {project.technologies.map((t) => (
+                    <span key={t} className="px-3 py-1 text-xs border border-white/15 rounded-full text-white/70">{t}</span>
+                  ))}
+                </div>
+              )}
+              {project.live_url && (
+                <a href={project.live_url} target="_blank" rel="noreferrer" className="btn-primary">
+                  Voir le projet <ExternalLink size={16} />
+                </a>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

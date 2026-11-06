@@ -1,61 +1,75 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
+
+const links = [
+  { l: 'Accueil', h: '/#top' },
+  { l: 'Services', h: '/#services' },
+  { l: 'Réalisations', h: '/#projects' },
+  { l: 'Contact', h: '/#contact' },
+];
 
 export const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const f = () => setScrolled(window.scrollY > 24);
+    f();
+    window.addEventListener('scroll', f, { passive: true });
+    return () => window.removeEventListener('scroll', f);
+  }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white px-6 py-4">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        
-        {/* Logo */}
-        <Link to="/" className="text-xl font-bold tracking-wider text-blue-400">
-          CHAROSOFT
+    <motion.nav
+      initial={{ y: -80 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6 }}
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 px-6 ${
+        scrolled ? 'bg-ink-900/80 backdrop-blur-lg border-b border-white/10 py-3' : 'py-5'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
+          <img src="/logo.png" alt="Charosoft" className="h-10 w-10 rounded-lg object-cover" />
+          <span className="font-display tracking-widest text-sm">CHAROSOFT</span>
         </Link>
 
-        {/* Liens Desktop (Masqués sur écran mobile 'hidden', affichés à partir de 'md:') */}
-        <div className="hidden md:flex gap-6 items-center text-sm font-medium">
-          <Link to="/" className="hover:text-blue-400 transition">Accueil</Link>
-    
-          <a href="/#projects" className="hover:text-blue-400 transition">Projets</a>
-          <a href="/#contact" className="hover:text-blue-400 transition">Contact</a>
-          <Link to="/about" className="hover:text-blue-400 transition">À propos</Link>        
+        <div className="hidden md:flex items-center gap-8 text-sm">
+          {links.map((x) => (
+            <a key={x.l} href={x.h} className="relative text-white/80 hover:text-brand transition group">
+              {x.l}
+              <span className="absolute -bottom-1 left-0 h-px w-0 bg-brand transition-all duration-300 group-hover:w-full" />
+            </a>
+          ))}
+          <Link to="/about" className="text-white/80 hover:text-brand transition">À propos</Link>
+          <a href="/#contact" className="btn-primary !py-2 !px-4 text-sm">Demander un devis</a>
         </div>
 
-        {/* Bouton Burger Mobile */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none"
-          aria-label="Toggle Menu"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {isOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2" aria-label="Menu">
+          {open ? <X /> : <Menu />}
         </button>
       </div>
 
-      {/* Menu Déroulant Mobile */}
-      {isOpen && (
-        <div className="md:hidden mt-4 pb-4 border-t border-slate-800 flex flex-col gap-4 pt-4 text-sm font-medium">
-          <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-blue-400 transition">
-            Accueil
-          </Link>
-          <Link to="/about" onClick={() => setIsOpen(false)} className="hover:text-blue-400 transition">
-            À propos
-          </Link>
-          <a href="/#projects" onClick={() => setIsOpen(false)} className="hover:text-blue-400 transition">
-            Projets
-          </a>
-          <a href="/#contact" onClick={() => setIsOpen(false)} className="hover:text-blue-400 transition">
-            Contact
-          </a>
-        </div>
-      )}
-    </nav>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden overflow-hidden"
+          >
+            <div className="flex flex-col gap-4 pt-4 pb-2 text-sm">
+              {links.map((x) => (
+                <a key={x.l} href={x.h} onClick={() => setOpen(false)} className="hover:text-brand">{x.l}</a>
+              ))}
+              <Link to="/about" onClick={() => setOpen(false)} className="hover:text-brand">À propos</Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 
